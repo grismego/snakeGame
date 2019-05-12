@@ -2,6 +2,7 @@ import {Command, KeyCode, isCommandEvent} from '../lib/command';
 
 const STEP = 40;
 const image = new Image();
+let changingDirection;
 image.src = `./img/apple.png`;
 
 export default class Snake {
@@ -12,7 +13,6 @@ export default class Snake {
     this._ctx = canvas.getContext(`2d`);
 
     this._snake = [{x: 0, y: 0}];
-    // this._snake = [{x: 0, y: 0}, {x: 40, y: 0}, {x: 80, y: 0}, {x: 120, y: 0}, {x: 160, y: 0}, {x: 200, y: 0}, {x: 240, y: 0}];
     this.drawSnakePart = this.drawSnakePart.bind(this);
     this.movementSnake = this.movementSnake.bind(this);
     this.changeDirection = this.changeDirection.bind(this);
@@ -27,6 +27,7 @@ export default class Snake {
     this.foodX = 120;
     this.foodY = 120;
 
+
     this.tick = 300;
   }
 
@@ -36,7 +37,39 @@ export default class Snake {
   }
 
   drawFood() {
-    this._ctx.drawImage(image, this.foodX, this.foodY, 40, 40);
+    this._ctx.save();
+    this._ctx.fillStyle = '#00bd39';
+    this._ctx.beginPath();
+
+    this._ctx.moveTo(this.foodX + 20, this.foodY + 10);
+
+    this._ctx.quadraticCurveTo(
+        this.foodX + 20,
+        this.foodY - 10,
+        this.foodX + 40,
+        this.foodY - 10
+      );
+
+    this._ctx.closePath();
+
+    this._ctx.quadraticCurveTo(
+      this.foodX + 60,
+      this.foodY,
+      this.foodX + 40,
+      this.foodY - 10
+    );
+
+    this._ctx.closePath();
+    this._ctx.fill();
+    this._ctx.restore();
+
+    this._ctx.fillStyle = '#eb4135';
+    this._ctx.beginPath();
+    this._ctx.ellipse(this.foodX + 20, this.foodY + 20, 15, 15, 0, 0, Math.PI * 2);
+
+    this._ctx.fill();
+    this._ctx.closePath();
+    this._ctx.restore();
   }
 
   replaceSnake() {
@@ -60,6 +93,7 @@ export default class Snake {
   }
 
   onTick() {
+    changingDirection = false;
     if (this.didEatSnake()){
       return;
     }
@@ -102,9 +136,6 @@ export default class Snake {
 
     if (didEatFood) {
       this.createFood();
-
-      this.tick-=10;
-      console.log(this.tick);
     } else {
       this._snake.pop();
     }
@@ -123,11 +154,17 @@ export default class Snake {
 
   changeDirection(event) {
 
-    const keyPressed = event.keyCode;
     const goingUp = this.dy === -40;
     const goingDown = this.dy === 40;
     const goingRight = this.dx === 40;
     const goingLeft = this.dx === -40;
+
+    if (changingDirection) {
+      return;
+    }
+    changingDirection = true;
+
+    const keyPressed = event.keyCode;
 
     if (keyPressed === KeyCode.UP && !goingDown) {
       this.dy = -40;
