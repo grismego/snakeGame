@@ -1,9 +1,6 @@
-import {Command, KeyCode, isCommandEvent} from '../lib/command';
+import {KeyCode} from '../lib/command';
 
-const STEP = 40;
-const image = new Image();
 let changingDirection;
-image.src = `./img/apple.png`;
 
 export default class Snake {
   constructor(canvas) {
@@ -17,18 +14,13 @@ export default class Snake {
     this.movementSnake = this.movementSnake.bind(this);
     this.changeDirection = this.changeDirection.bind(this);
     this.clearCanvas = this.clearCanvas.bind(this);
-    this.onTick = this.onTick.bind(this);
-    this.drawFood = this.drawFood.bind(this);
+    this.init = this.init.bind(this);
+    // this.drawFood = this.drawFood.bind(this);
     this.didEatSnake = this.didEatSnake.bind(this);
 
     this.dx = 40;
     this.dy = 0;
 
-    this.foodX = 120;
-    this.foodY = 120;
-
-
-    this.tick = 300;
   }
 
   clearCanvas() {
@@ -36,41 +28,7 @@ export default class Snake {
     this._ctx.fillRect(0, 0, this._canvas.width, this._canvas.height);
   }
 
-  drawFood() {
-    this._ctx.save();
-    this._ctx.fillStyle = '#00bd39';
-    this._ctx.beginPath();
 
-    this._ctx.moveTo(this.foodX + 20, this.foodY + 10);
-
-    this._ctx.quadraticCurveTo(
-        this.foodX + 20,
-        this.foodY - 10,
-        this.foodX + 40,
-        this.foodY - 10
-      );
-
-    this._ctx.closePath();
-
-    this._ctx.quadraticCurveTo(
-      this.foodX + 60,
-      this.foodY,
-      this.foodX + 40,
-      this.foodY - 10
-    );
-
-    this._ctx.closePath();
-    this._ctx.fill();
-    this._ctx.restore();
-
-    this._ctx.fillStyle = '#eb4135';
-    this._ctx.beginPath();
-    this._ctx.ellipse(this.foodX + 20, this.foodY + 20, 15, 15, 0, 0, Math.PI * 2);
-
-    this._ctx.fill();
-    this._ctx.closePath();
-    this._ctx.restore();
-  }
 
   replaceSnake() {
     const {x, y} = this._snake[0];
@@ -87,21 +45,21 @@ export default class Snake {
   }
 
   drawSnake() {
-    this.didEatSnake();
     this.replaceSnake();
+    this.didEatSnake();
     this._snake.forEach(this.drawSnakePart);
   }
 
-  onTick() {
+  init() {
     changingDirection = false;
     if (this.didEatSnake()){
       return;
     }
     this._createListeners();
     this.clearCanvas();
-    this.drawFood();
-    this.drawSnake();
-    this.movementSnake();
+    // this.drawFood();
+    // this.drawSnake();
+    // this.movementSnake();
   }
 
   didEatSnake() {
@@ -111,10 +69,6 @@ export default class Snake {
         return true;
       }
     }
-  }
-
-  init() {
-    setInterval(this.onTick, 300);
   }
 
   drawSnakePart(snakePart) {
@@ -131,26 +85,8 @@ export default class Snake {
 
     this._snake.unshift(head);
 
-    const didEatFood = this._snake[0].x === this.foodX
-          && this._snake[0].y === this.foodY;
-
-    if (didEatFood) {
-      this.createFood();
-    } else {
-      this._snake.pop();
-    }
   }
 
-  createFood() {
-    this.foodX = Snake.randomTen(0, this._canvas.width - 40);
-    this.foodY = Snake.randomTen(0, this._canvas.height - 40);
-
-    this._snake.forEach((part) => {
-      if (part.x === this.foodX && part.y === this.foodY) {
-        this.createFood();
-      }
-    });
-  }
 
   changeDirection(event) {
 
@@ -185,7 +121,4 @@ export default class Snake {
     document.addEventListener(`keydown`, this.changeDirection);
   }
 
-  static randomTen(min, max) {
-    return Math.ceil((Math.random() * (max-min) + min) / 40) * 40;
-  }
 }

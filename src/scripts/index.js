@@ -2,17 +2,20 @@ import 'normalize.css';
 import '../styles/index.scss';
 import './lib/area';
 import Snake from './components/snakeComponent';
+import Game from './components/gameComponent';
 
 const canvas = document.querySelector(`#snake`);
 canvas.width = document.documentElement.clientWidth;
 canvas.height = document.documentElement.clientHeight;
 
-let snakeComponent = new Snake(canvas);
+// let snakeComponent = new Snake(canvas);
+
+let gameComponent = new Game(canvas);
 
 
+console.log(gameComponent);
 
-snakeComponent.init();
-console.log(snakeComponent);
+gameComponent.startGame();
 // document.addEventListener(`keydown`, (evt) => {
 
 
